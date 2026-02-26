@@ -1,7 +1,7 @@
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import TrackCard from "./TrackCard";
-
+import MusicPlayer from "./MusicPlayer";
 const Dashboard = () => {
   const [tracks, setTracks] = useState([]);
   const [currentTrack, setCurrentTrack] = useState(null);
@@ -40,6 +40,24 @@ const Dashboard = () => {
           />
         ))}
       </div>
+      <div className="min-h-screen bg-black pb-24">
+      <SearchBar onSearch={fetchTracks} />
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        {tracks.map((track) => (
+          <TrackCard
+          key={track.id}
+          track={track}
+          onPlay={setCurrentTrack}
+          />
+        ))}
+        </div>
+        <MusicPlayer currentTrack={currentTrack} />
+        </div>
+        <MusicPlayer
+        currentTrack={currentTrack}
+        tracks={tracks}
+        setCurrentTrack={setCurrentTrack}
+        />
 
       {/* Bottom Music Player */}
       {currentTrack && (
