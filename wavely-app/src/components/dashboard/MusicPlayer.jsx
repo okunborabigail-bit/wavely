@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-const MusicPlayer = ({ currentTrack, tracks, setCurrentTrack }) => {
+const MusicPlayer = ({ currentTrack, tracks = [], setCurrentTrack }) => {
   const audioRef = useRef(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -9,24 +9,45 @@ const MusicPlayer = ({ currentTrack, tracks, setCurrentTrack }) => {
   // Auto play when track changes
   useEffect(() => {
     if (currentTrack && audioRef.current) {
-      audioRef.current.pause();   // stop old audio
-      audioRef.current.currentTime =0;
-      audioRef.current.load();
-      audioRef.current.play();
-      setIsPlaying(true);
+      const audio = audioRef.current;
+
+      audio.pause();
+      audio.currentTime = 0;
+      audio.load();
+
+      audio.play()
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.log("Autoplay prevented:", err);
+        });
     }
   }, [currentTrack]);
 
-  // Set volume
+  // Volume control
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
     }
   }, [volume]);
 
+  // Auto play next when song ends
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const handleEnded = () => {
+      handleNext();
+    };
+
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, [currentTrack, tracks]);
+
   if (!currentTrack) return null;
 
-  // Play / Pause toggle
   const togglePlay = () => {
     if (!audioRef.current) return;
 
@@ -39,18 +60,16 @@ const MusicPlayer = ({ currentTrack, tracks, setCurrentTrack }) => {
     }
   };
 
-  // Skip to next track
   const handleNext = () => {
     const currentIndex = tracks.findIndex(
       (track) => track.id === currentTrack.id
     );
 
-    if (currentIndex < tracks.length - 1) {
+    if (currentIndex !== -1 && currentIndex < tracks.length - 1) {
       setCurrentTrack(tracks[currentIndex + 1]);
     }
   };
 
-  // Skip to previous track
   const handlePrev = () => {
     const currentIndex = tracks.findIndex(
       (track) => track.id === currentTrack.id
@@ -115,7 +134,7 @@ const MusicPlayer = ({ currentTrack, tracks, setCurrentTrack }) => {
           max="1"
           step="0.01"
           value={volume}
-          onChange={(e) => setVolume(e.target.value)}
+          onChange={(e) => setVolume(Number(e.target.value))}
           className="w-full accent-purple-600"
         />
       </div>

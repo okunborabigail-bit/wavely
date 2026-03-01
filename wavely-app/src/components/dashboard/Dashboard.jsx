@@ -2,9 +2,12 @@ import { useState } from "react";
 import SearchBar from "./SearchBar";
 import TrackCard from "./TrackCard";
 import MusicPlayer from "./MusicPlayer";
+
+
 const Dashboard = () => {
   const [tracks, setTracks] = useState([]);
   const [currentTrack, setCurrentTrack] = useState(null);
+
 
   // Fetch music from Deezer API
   const fetchTracks = async (query) => {
@@ -20,64 +23,42 @@ const Dashboard = () => {
     }
   };
 
+
   return (
-    <div className="p-6 min-h-screen bg-gray-100 pb-24">
+    <div className="px-4 md:px-6 py-6 min-h-screen bg-gray-900 text-white pb-28">
+      
       {/* Header */}
-      <h1 className="text-4xl font-bold text-purple-600 mb-4">
+      <h1 className="text-2xl md:text-4xl font-bold text-purple-400 mb-6">
         🎧 Welcome Back, Chioma!
       </h1>
+
 
       {/* Search Bar */}
       <SearchBar onSearch={fetchTracks} />
 
-      {/* Track Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+
+      {/* Tracks Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
         {tracks.map((track) => (
           <TrackCard
             key={track.id}
             track={track}
             onSelect={setCurrentTrack}
+            currentTrack={currentTrack}
           />
         ))}
       </div>
-      <div className="min-h-screen bg-black pb-24">
-      <SearchBar onSearch={fetchTracks} />
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        {tracks.map((track) => (
-          <TrackCard
-          key={track.id}
-          track={track}
-          onPlay={setCurrentTrack}
-          />
-        ))}
-        </div>
-        <MusicPlayer currentTrack={currentTrack} />
-        </div>
-        <MusicPlayer
+
+
+      {/* Music Player */}
+      <MusicPlayer
         currentTrack={currentTrack}
         tracks={tracks}
         setCurrentTrack={setCurrentTrack}
-        />
-
-      {/* Bottom Music Player */}
-      {currentTrack && (
-        <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg p-4 flex items-center justify-between">
-          <div>
-            <h3 className="font-bold">{currentTrack.title}</h3>
-            <p className="text-sm text-gray-600">
-              {currentTrack.artist.name}
-            </p>
-          </div>
-
-          <audio
-            controls
-            autoPlay
-            src={currentTrack.preview}
-          />
-        </div>
-      )}
+      />
     </div>
   );
 };
+
 
 export default Dashboard;
